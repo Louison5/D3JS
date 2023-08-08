@@ -74,7 +74,11 @@ important components: 1. timeline 2. colorbar 3. turning pages
 # 📜 Quests
 
 Here, any group member could publish some quests,
-format: quest_id.quest_raiser:quest(quest_taker)✅
+
+format:
+
+quest_id.quest_raiser:quest(quest_taker)✅
+
 Filled quests will be credited
 
     1.luoyc: Finish the colorbar()
