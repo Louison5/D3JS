@@ -1,9 +1,40 @@
-# StackOverflow 2019 Developer Survey: World Map
+From https://github.com/jeremy-friesen/stackoverflow-2019-survey-world-map-d3
 
-## Collaborators
-- [Jeremy Friesen](https://github.com/jeremydavidfriesen)
-- [Aabid Mitha](https://github.com/aabidmitha10)
-- [Gagandeep Pabla](https://github.com/CrownPab)
+# 💻 Cooperates
 
+## To replicate:
 
-## [View Visualization](https://jeremy-friesen.github.io/stackoverflow-2019-survey-world-map-d3/)
+```sh
+git clone https://github.com/Louison5/D3JS
+python preprocess.py
+```
+
+You should try to set up live servers on your personal IDEs
+
+# 🧾 Structures
+
+## [suicide_data.json](suicide_data.json)
+
+```
+| country
+| ├── year
+| | ├── hdi
+| | ├── ppp
+| | ├── sex
+| | | ├── ...
+| | ├── age
+| | | ├── ...
+```
+
+## [index.html](index.html)
+
+important components: 1. timeline 2. colorbar 3. turning pages
+
+🛠️under construction
+
+# 📜 Quests
+
+Here, any group member could publish some quests,
+Filled quests will be credited
+
+    1.luoyc: Finish the colorbar
