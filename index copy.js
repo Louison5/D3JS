@@ -85,13 +85,7 @@ countryTops = {};
 
 // parse country data
 var countryData = {};
-var suicideData = {};
-d3.json("suicide_data.json", function(error, data){
-  for(var country in data){
-    if (data[country]["2019"] != undefined){
-    suicideData[country] = data[country]["2019"]["num"];}
-  }
-})
+
 d3.json("data.json", function(error, data){
   for(var country in data){
     countryData[country] = data[country];
@@ -151,139 +145,73 @@ d3.json("data.json", function(error, data){
     .attr("class", "legend");
 
   // Handler for dropdown value change
-  // var dropdownChange = function () {
-  //   var selectedAttribute = d3.select(this).property('value');
-  //   console.log(selectedAttribute);
-  //   console.log(countryTops[selectedAttribute]);
-  //   if (selectedAttribute == undefined)
-  //     selectedAttribute = "top languages";
-
-  //   var rects = legend
-  //     .selectAll('rect')
-  //     .data(countryTops[selectedAttribute], function(d){return d;})
-
-  //   rects.exit().remove();
-
-  //   rects.enter()
-  //     .append('rect')
-  //     .attr('width', legendRectSize)
-  //     .attr('height', legendRectSize)
-  //     .attr('x', width + 20)
-  //     .attr('y', function (d, i) { return 100 + i * 25 })
-  //     .attr('fill', function (d, i) {
-  //       var value = countryTops[selectedAttribute][i]
-  //       if (selectedAttribute == "top languages") {
-  //         var ret = topLanguagesColours[topLanguages.indexOf(value)];
-  //       } else {
-  //         var ret = d3.scale.category20().domain(countryTops[selectedAttribute])(value);
-  //         if(value == "NA")
-  //           return "white"
-  //       }
-  //       if (ret == undefined)
-  //         return "white";
-  //       return ret;
-  //     })
-  //     .attr('stroke', function () { return "black" });
-
-  //   rects.transition()
-  //     .attr('y', function (d, i) { return 100 + i * 25 })
-  //     .attr('fill', function (d, i) {
-  //       var value = countryTops[selectedAttribute][i]
-  //       if (selectedAttribute == "top languages") {
-  //         var ret = topLanguagesColours[topLanguages.indexOf(value)];
-  //       } else {
-  //         var ret = d3.scale.category20().domain(countryTops[selectedAttribute])(value);
-  //         if(value == "NA")
-  //           return "white"
-  //       }
-  //       if (ret == undefined)
-  //         return "white";
-  //       return ret;
-  //     })
-
-  //   var texts = legend.selectAll('text')
-  //     .data(countryTops[selectedAttribute], function (d) { return d; });
-
-  //   texts.exit().remove()
-
-  //   texts.enter()
-  //     .append('text')
-  //     .attr('x', width + 50)
-  //     .attr('y', function (d, i) { return 110 + i * 25 })
-  //     .text(function (d, i) { return countryTops[selectedAttribute][i]; });
-  
-  //   texts.transition()
-  //     .attr('y', function (d, i) { return 110 + i * 25 })
-
-  //   updateMapColours(selectedAttribute);
-  // };
-  
-  var dropdownChange = function(){
-    
+  var dropdownChange = function () {
     var selectedAttribute = d3.select(this).property('value');
     console.log(selectedAttribute);
     console.log(countryTops[selectedAttribute]);
     if (selectedAttribute == undefined)
-      selectedAttribute = "top platforms";
+      selectedAttribute = "top languages";
 
-    var gradient = svg.append("defs")
-      .append("linearGradient")
-      .attr("id", "gradient")
-      .attr("x1", "0%")
-      .attr("x2", "100%");
-    
-    // Add color stops to the gradient
-    gradient.selectAll("stop")
-      .data(colorScale.range())
-      .enter().append("stop")
-      .attr("offset", function(d, i) { return i / (colorScale.range().length - 1); })
-      .attr("stop-color", function(d) { return d; });
-    
-    // Display the gradient as a rect
-    legendHeight =20
-    svg.append("rect")
-      .attr("width", 200)
-      .attr("height", legendHeight)
+    var rects = legend
+      .selectAll('rect')
+      .data(countryTops[selectedAttribute], function(d){return d;})
+
+    rects.exit().remove();
+
+    rects.enter()
+      .append('rect')
+      .attr('width', legendRectSize)
+      .attr('height', legendRectSize)
+      .attr('x', width + 20)
+      .attr('y', function (d, i) { return 100 + i * 25 })
+      .attr('fill', function (d, i) {
+        var value = countryTops[selectedAttribute][i]
+        if (selectedAttribute == "top languages") {
+          var ret = topLanguagesColours[topLanguages.indexOf(value)];
+        } else {
+          var ret = d3.scale.category20().domain(countryTops[selectedAttribute])(value);
+          if(value == "NA")
+            return "white"
+        }
+        if (ret == undefined)
+          return "white";
+        return ret;
+      })
+      .attr('stroke', function () { return "black" });
+
+    rects.transition()
+      .attr('y', function (d, i) { return 100 + i * 25 })
+      .attr('fill', function (d, i) {
+        var value = countryTops[selectedAttribute][i]
+        if (selectedAttribute == "top languages") {
+          var ret = topLanguagesColours[topLanguages.indexOf(value)];
+        } else {
+          var ret = d3.scale.category20().domain(countryTops[selectedAttribute])(value);
+          if(value == "NA")
+            return "white"
+        }
+        if (ret == undefined)
+          return "white";
+        return ret;
+      })
+
+    var texts = legend.selectAll('text')
+      .data(countryTops[selectedAttribute], function (d) { return d; });
+
+    texts.exit().remove()
+
+    texts.enter()
+      .append('text')
       .attr('x', width + 50)
       .attr('y', function (d, i) { return 110 + i * 25 })
-      .style("fill", "url(#gradient)");
-    
-    // Position and style the legend
-    svg.attr("transform", "translate(10, 10)");
-    
-    // Add marks to the color bar legend
-    var markPercentages = [0, 25, 50, 75];
-    var markValues = markPercentages.map(function(percentage) {
-      return colorScale.invert(percentage / 100*colorScale.max); // Calculate the data value from the percentage
-      // return colorScale.invert(20); // Calculate the data value from the percentage
-    });
-    var markGroup = svg.append("g")
-    .attr("class", "color-bar-marks");
-
-    console.log(markValues)
-    markGroup.selectAll("line")
-    .data(markValues)
-    .enter().append("line")
-    .attr("x1", function(d) { return colorScale(d); })
-    .attr("x2", function(d) { return colorScale(d); })
-    // .attr("x1", function(d) { return (d); })
-    // .attr("x2", function(d) { return (d); })
-    .attr("y1", 0)
-    .attr("y2", legendHeight)
-    .style("stroke", "black")
-    .style("stroke-width", 2);
-
-    // Add labels to the marks
-    markGroup.selectAll("text")
-    .data(markValues)
-    .enter().append("text")
-    .attr("x", function(d) { return colorScale(d)+ width+50; })
-    .attr("y", legendHeight + 14)
-    .attr("text-anchor", "middle")
-    .text(function(d) { return Math.round(d * 100) + "%"; });
+      .text(function (d, i) { return countryTops[selectedAttribute][i]; });
+  
+    texts.transition()
+      .attr('y', function (d, i) { return 110 + i * 25 })
 
     updateMapColours(selectedAttribute);
   };
+
   dropdown.on("change", dropdownChange);
   dropdownChange();
 });
@@ -294,12 +222,6 @@ console.log("topLanguages: ");
 console.log(topLanguages);
 console.log("topLanguagesColours: ");
 console.log(topLanguagesColours);
-
-
-var colorScale = d3.scale.linear()
-  .domain([0, 100]) // Set the domain of your continuous data
-  .range(["blue", "red"]);
-  // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
 // update the colour of each country, by attribute parameter
 function updateMapColours(attribute){
@@ -323,22 +245,14 @@ function updateMapColours(attribute){
         var value = Object.keys(countryData[d.properties.name][altName])[0];
         if(value == "NA" && Object.keys(countryData[d.properties.name][altName])[1] != undefined)
           value = Object.keys(countryData[d.properties.name][altName])[1];
-
         var colour = "white"
-        // if (altName == "languages") {
-          // colour = topLanguagesColours[topLanguages.indexOf(value)];
-        // } else {
-          // colour = d3.scale.category20().domain(countryTops[attribute])(value);
-          // colour = d3.scale.category20().domain(suicideData)(value);
-        console.log(suicideData)
-        console.log("adas")
-        console.log(d.properties.name)
-        value = suicideData[d.properties.name]
-        console.log(value)
-        colour = colorScale(value)
-        if (value == "NA")
-          colour = "white"
-        // }
+        if (altName == "languages") {
+          colour = topLanguagesColours[topLanguages.indexOf(value)];
+        } else {
+          colour = d3.scale.category20().domain(countryTops[attribute])(value);
+          if (value == "NA")
+            colour = "white"
+        }
       }
       console.log(colour);
       return "fill:" + colour + ";";
@@ -348,7 +262,6 @@ function updateMapColours(attribute){
     // console.log(parsedData);
   }
 }
-
 
 
 // get json data and draw it
