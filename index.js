@@ -1,6 +1,13 @@
-var width = 962,
+var slider = document.getElementById("myRange");
+const computedStyle = getComputedStyle(slider);
+const width = parseInt(computedStyle.width, 10)*0.88;
+const enlarge_ratio = width/962
+// var width = 962,
 rotated = 0,
-height = 502;
+height = 502*enlarge_ratio;
+
+console.log("WIDTH")
+console.log(width)
 var colourList = ['lightgreen', 'green', 'blue', 'palevioletred', 'red', 'yellow']
 
 //Store parsed data
@@ -23,8 +30,8 @@ var countryClicked = '';
 
 // Adapted from "d3 map with states and countries", http://bl.ocks.org/MaciejKus/61e9ff1591355b00c1c1caf31e76a668
 var projection = d3.geo.mercator()
-  .scale(153)
-  .translate([width / 2, height / 1.5])
+  .scale(153*enlarge_ratio)
+  .translate([width / 2, height/ 1.5])
   .rotate([rotated, 0, 0]);
 // Adapted from "d3 map with states and countries", http://bl.ocks.org/MaciejKus/61e9ff1591355b00c1c1caf31e76a668
 var zoom = d3.behavior.zoom()
@@ -32,7 +39,9 @@ var zoom = d3.behavior.zoom()
   .on("zoom", zoomed);
 // Adapted from "d3 map with states and countries", http://bl.ocks.org/MaciejKus/61e9ff1591355b00c1c1caf31e76a668
 var svg = d3.select("body").append("svg")
-  .attr("width", width+200)
+  // .attr("width", width+200)
+  .attr("width", width)
+  // .attr("height", height+100)
   .attr("height", height)
   //track where user clicked down
   .on("mousedown", function () {
@@ -57,9 +66,9 @@ function rotateMap(endX) {
 }
 
 //for tooltip
-var offsetL = document.getElementById('map').offsetLeft + 300;
+var offsetL = document.getElementById('map').offsetLeft ;
 // + document.getElementsByClassName();
-var offsetT = document.getElementById('map').offsetTop + 20;
+var offsetT = document.getElementById('map').offsetTop +10;
 
 var path = d3.geo.path()
   .projection(projection);
@@ -92,6 +101,7 @@ d3.json("suicide_data.json", function(error, data){
     if (data[country]["2019"] != undefined){
     suicideData[country] = data[country]["2019"]["num"];}
   }
+  suicideData = renameKeysUsingMap(suicideData, rename)
   updateMapColours("top languages");
 })
 d3.json("data.json", function(error, data){
@@ -127,8 +137,48 @@ d3.json("data.json", function(error, data){
   countryTops = {"top languages": topLanguages, "top platforms": topPlatforms, "top developer types": topDeveloperTypes};
   console.log(countryTops); //remove
 
-  var dropdowndiv = d3.select("body").insert("div", ":first-child");
-  dropdowndiv.insert("a").html("Colour attribute:");
+  // var dropdowndiv = d3.select("body").insert("div", ":first-child");
+  // dropdowndiv.insert("a").html("Colour attribute:");
+  // slider range bar
+  // var bardiv = d3.select("body").insert("div", ":first-child");
+  // bardiv.insert("a").html("year");
+  // var bar = bardiv.insert("div").attr("class", "bar").attr("id", "bar")
+
+  var output = document.getElementById("demo");
+  output.innerHTML = slider.value; // Display the default slider value
+
+  // Update the current slider value (each time you drag the slider handle)
+  slider.oninput = function() {
+    output.innerHTML = this.value;
+    var year_str = String(this.value)
+    d3.json("suicide_data.json", function(error, data){
+      for(var country in data){
+        if (data[country][year_str] != undefined){
+        suicideData[country] = data[country][year_str]["num"];}
+      }
+      suicideData = renameKeysUsingMap(suicideData, rename)
+      updateMapColours("top languages");
+    })
+  }
+  function dragstarted(event) {
+    d3.select(this).raise().attr("stroke", "black");
+  }
+
+  function dragged(event) {
+    const x = event.x;
+    const index = Math.round(xScale.invert(x));
+    if (index >= 0 && index < years.length) {
+      bar.style("left", x + "px");
+      updateSelectedYear(index);
+    }
+  }
+  function dragended(event) {
+    d3.select(this).attr("stroke", null);
+  }
+  bar.call(d3.drag()
+  .on("start", dragstarted)
+  .on("drag", dragged)
+  .on("end", dragended));
 
   var dropdown = dropdowndiv.insert("select")
     .attr("class", "select")
@@ -299,7 +349,7 @@ console.log(topLanguagesColours);
 
 
 var colorScale = d3.scale.linear()
-  .domain([0, 100]) // Set the domain of your continuous data
+  .domain([0, 10000]) // Set the domain of your continuous data
   .range(["blue", "red"]);
   // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
@@ -319,7 +369,8 @@ function updateMapColours(attribute){
     }
 
     countries.attr("style", function (d) {
-      var colour = "white";
+      // var colour = "white";
+      var colour = "f0f0f0";
       if (d.properties.name != undefined && countryData[d.properties.name] != undefined){
         //countryData[d.properties.name][altName][0]
         var value = Object.keys(countryData[d.properties.name][altName])[0];
@@ -482,254 +533,271 @@ function zoomed() {
 // Additional charts
 
 //Called when a country on the map is clicked
-function displayBarCharts(countryClicked, attribute, xLabel, bool, index){
-  //use the parsed data
-  // console.log("ds");
-  // console.log(parsedData[countryClicked]);
-  let data = countryData[countryClicked][attribute];
-  // console.log(data);
-  // console.log(Object.keys(data));
-  // console.log(Object.values(data));
+// function displayBarCharts(countryClicked, attribute, xLabel, bool, index){
+//   //use the parsed data
+//   // console.log("ds");
+//   // console.log(parsedData[countryClicked]);
+//   let data = countryData[countryClicked][attribute];
+//   // console.log(data);
+//   // console.log(Object.keys(data));
+//   // console.log(Object.values(data));
 
-  let maxY = Math.max(...Object.values(data));
-  let newData = [];
+//   let maxY = Math.max(...Object.values(data));
+//   let newData = [];
 
-  let maxLength = 10;
-  if (Object.keys(data).length < maxLength){
-    maxLength = Object.keys(data).length;
-  }
-  for (let i = 0; i < maxLength; i++){
-    newData.push({'x': `${Object.keys(data)[i]}`, "y": `${Object.values(data)[i]}`});
-  }
+//   let maxLength = 10;
+//   if (Object.keys(data).length < maxLength){
+//     maxLength = Object.keys(data).length;
+//   }
+//   for (let i = 0; i < maxLength; i++){
+//     newData.push({'x': `${Object.keys(data)[i]}`, "y": `${Object.values(data)[i]}`});
+//   }
 
-  //console.log("newData = ", newData);
+//   //console.log("newData = ", newData);
 
-  let div = document.getElementById(`vis${index}`);
-  if(div.hasChildNodes()){
-    let removeTable = document.getElementById(`svgChart${index}`);
-    removeTable.parentNode.removeChild(removeTable);
-  }
+//   let div = document.getElementById(`vis${index}`);
+//   if(div.hasChildNodes()){
+//     let removeTable = document.getElementById(`svgChart${index}`);
+//     removeTable.parentNode.removeChild(removeTable);
+//   }
 
-  const margin = 50;
-  const width = 500;
-  const height = 500;
-  const chartWidth = width - 2 * margin;
-  const chartHeight = height - 2 * margin - 80;
+//   const margin = 50;
+//   const width = 500;
+//   const height = 500;
+//   const chartWidth = width - 2 * margin;
+//   const chartHeight = height - 2 * margin - 80;
 
-  const colourScale = d3.scale.ordinal()
-                        //.domain([0, d3.max(data, d => d.y)])
-                        .domain([0, 5])
-                        .range(colourList);
+//   const colourScale = d3.scale.ordinal()
+//                         //.domain([0, d3.max(data, d => d.y)])
+//                         .domain([0, 5])
+//                         .range(colourList);
 
-  const xScale = d3.scale.ordinal()
-                   .rangeRoundBands([0, chartWidth], .1)
-                   .domain(newData.map((d) => d.x))
-  //console.log("domain = ", xScale.domain())
+//   const xScale = d3.scale.ordinal()
+//                    .rangeRoundBands([0, chartWidth], .1)
+//                    .domain(newData.map((d) => d.x))
+//   //console.log("domain = ", xScale.domain())
 
-  const yScale = d3.scale.linear()
-                   .range([chartHeight, 0])
-                   .domain([0, maxY]);
-  //console.log("domain = ", yScale.domain())
+//   const yScale = d3.scale.linear()
+//                    .range([chartHeight, 0])
+//                    .domain([0, maxY]);
+//   //console.log("domain = ", yScale.domain())
 
-  const xAxis = d3.svg.axis()
-                  .scale(xScale)
-                  .orient("bottom")
+//   const xAxis = d3.svg.axis()
+//                   .scale(xScale)
+//                   .orient("bottom")
 
-  const yAxis = d3.svg.axis()
-                  .scale(yScale)
-                  .orient("left")
+//   const yAxis = d3.svg.axis()
+//                   .scale(yScale)
+//                   .orient("left")
   
-  const svg = d3.select(`#vis${index}`)
-                .append('svg')
-                  .attr('id', `svgChart${index}`)
-                  .attr('class', 'graph')
-                  .attr('width', width)
-                  .attr('height', height);
+//   const svg = d3.select(`#vis${index}`)
+//                 .append('svg')
+//                   .attr('id', `svgChart${index}`)
+//                   .attr('class', 'graph')
+//                   .attr('width', width)
+//                   .attr('height', height);
   
-  const canvas = svg.append('g')
-                      .attr('transform', `translate(${margin}, ${margin})`);
+//   const canvas = svg.append('g')
+//                       .attr('transform', `translate(${margin}, ${margin})`);
   
-  let title;
-  if (bool == true){
-    title = `Top ${maxLength} ${xLabel} in ${countryClicked}`
-  }
-  else{
-    title = `${xLabel} in ${countryClicked}`
-  }
-  // chart title
-  svg.append('text')
-        .attr('x', margin + chartWidth / 1.75)
-        .attr('y', margin - 30)
-        .attr('text-anchor', 'middle')
-        .text(title)
-        .attr('font-size', 22)
-        .attr('font-weight', 'bold')
-        .style("text-decoration", "underline");
+//   let title;
+//   if (bool == true){
+//     title = `Top ${maxLength} ${xLabel} in ${countryClicked}`
+//   }
+//   else{
+//     title = `${xLabel} in ${countryClicked}`
+//   }
+//   // chart title
+//   svg.append('text')
+//         .attr('x', margin + chartWidth / 1.75)
+//         .attr('y', margin - 30)
+//         .attr('text-anchor', 'middle')
+//         .text(title)
+//         .attr('font-size', 22)
+//         .attr('font-weight', 'bold')
+//         .style("text-decoration", "underline");
 
-  // x-axis and label
-  canvas.append('g')
-    .attr('transform', `translate(${margin}, ${chartHeight})`)
-    .call(xAxis)
-    .selectAll("text")  
-      .style("text-anchor", "end")
-      .attr("dx", "-.8em")
-      .attr("dy", ".15em")
-      .attr("transform", "rotate(-65)")
-      .attr('font-size', 10);
+//   // x-axis and label
+//   canvas.append('g')
+//     .attr('transform', `translate(${margin}, ${chartHeight})`)
+//     .call(xAxis)
+//     .selectAll("text")  
+//       .style("text-anchor", "end")
+//       .attr("dx", "-.8em")
+//       .attr("dy", ".15em")
+//       .attr("transform", "rotate(-65)")
+//       .attr('font-size', 10);
 
-  svg.append('text')
-        .attr('x', margin + chartWidth / 2 + margin)
-        .attr('y', chartHeight + 2 * margin + 60)
-        .attr('text-anchor', 'middle')
-        .text(`${xLabel}`)
-        .attr('font-weight', 'bold')
-        .style('fill', 'red');
+//   svg.append('text')
+//         .attr('x', margin + chartWidth / 2 + margin)
+//         .attr('y', chartHeight + 2 * margin + 60)
+//         .attr('text-anchor', 'middle')
+//         .text(`${xLabel}`)
+//         .attr('font-weight', 'bold')
+//         .style('fill', 'red');
     
 
-  // y-axis and label
-  canvas.append('g')
-           .attr('transform', `translate(50, 0)`)
-           .call(yAxis)
-           .attr('font-size', 15);
+//   // y-axis and label
+//   canvas.append('g')
+//            .attr('transform', `translate(50, 0)`)
+//            .call(yAxis)
+//            .attr('font-size', 15);
 
-  svg.append('text')
-        .attr('x', margin + -(chartWidth / 1.7))
-        .attr('y', margin - 10)
-        .attr('transform', 'rotate(-90)')
-        .attr('text-anchor', 'middle')
-        .text('Count')
-        .attr('font-weight', 'bold')
-        .style('fill', 'red');
+//   svg.append('text')
+//         .attr('x', margin + -(chartWidth / 1.7))
+//         .attr('y', margin - 10)
+//         .attr('transform', 'rotate(-90)')
+//         .attr('text-anchor', 'middle')
+//         .text('Count')
+//         .attr('font-weight', 'bold')
+//         .style('fill', 'red');
 
 
-  //const legend = canvas.
-  var xs = [];
-  for (var i = 0; i < newData.length; i++) {
-    xs.push(newData[i].x);
-  }
+//   //const legend = canvas.
+//   var xs = [];
+//   for (var i = 0; i < newData.length; i++) {
+//     xs.push(newData[i].x);
+//   }
   
-  // the bar chart
-  const bars = canvas.selectAll('rect')
-    .data(newData)
-    .enter()
-      .append('rect')
-          .attr('x', (d) => margin + xScale(d.x))
-          .attr('y', chartHeight)
-          .attr('height', 0)
-          .attr('width', xScale.rangeBand())
-          .on('mouseenter', function(source, index) {
-              d3.select(this)
-                .transition()
-                .duration(200)
-                .attr('opacity', 0.5);
-          })
-          .on('mouseleave', function(source, index) {
-            d3.select(this)
-                .transition()
-                .duration(200)
-                .attr('opacity', 1.0);
-          });
+//   // the bar chart
+//   const bars = canvas.selectAll('rect')
+//     .data(newData)
+//     .enter()
+//       .append('rect')
+//           .attr('x', (d) => margin + xScale(d.x))
+//           .attr('y', chartHeight)
+//           .attr('height', 0)
+//           .attr('width', xScale.rangeBand())
+//           .on('mouseenter', function(source, index) {
+//               d3.select(this)
+//                 .transition()
+//                 .duration(200)
+//                 .attr('opacity', 0.5);
+//           })
+//           .on('mouseleave', function(source, index) {
+//             d3.select(this)
+//                 .transition()
+//                 .duration(200)
+//                 .attr('opacity', 1.0);
+//           });
   
-  bars.transition()
-    .ease("elastic")
-    .duration(800)
-    .delay((d, index) => index * 50)
-    .attr('y', (d) => yScale(d.y))
-    .attr('height', (d)  => chartHeight - yScale(d.y))
-    .attr('fill', function (d) {
-      return d3.scale.category20().domain(xs)(d.x);
-    })
-}
+//   bars.transition()
+//     .ease("elastic")
+//     .duration(800)
+//     .delay((d, index) => index * 50)
+//     .attr('y', (d) => yScale(d.y))
+//     .attr('height', (d)  => chartHeight - yScale(d.y))
+//     .attr('fill', function (d) {
+//       return d3.scale.category20().domain(xs)(d.x);
+//     })
+// }
 
 
-function displayPieCharts(countryClicked, attribute, xLabel, index){
-  var w = 500;
-  var h = 500;
-  var r = h/3;
-  var color = d3.scale.category10();
+// function displayPieCharts(countryClicked, attribute, xLabel, index){
+//   var w = 500;
+//   var h = 500;
+//   var r = h/3;
+//   var color = d3.scale.category10();
 
-  let div = document.getElementById(`vis${index}`);
-  if(div.hasChildNodes()){
-    let removeTable = document.getElementById(`svgChart${index}`);
-    removeTable.parentNode.removeChild(removeTable);
-  }
+//   let div = document.getElementById(`vis${index}`);
+//   if(div.hasChildNodes()){
+//     let removeTable = document.getElementById(`svgChart${index}`);
+//     removeTable.parentNode.removeChild(removeTable);
+//   }
 
-  console.log(countryData[countryClicked]);
-  let data = countryData[countryClicked][attribute];
-  //console.log(data);
-  //console.log(Object.keys(data));
-  //console.log(Object.values(data));
+//   console.log(countryData[countryClicked]);
+//   let data = countryData[countryClicked][attribute];
+//   //console.log(data);
+//   //console.log(Object.keys(data));
+//   //console.log(Object.values(data));
 
-  let maxY = Math.max(...Object.values(data));
-  let newData = [];
+//   let maxY = Math.max(...Object.values(data));
+//   let newData = [];
 
-  let maxLength = 10;
-  if (Object.keys(data).length < maxLength){
-    maxLength = Object.keys(data).length;
-  }
+//   let maxLength = 10;
+//   if (Object.keys(data).length < maxLength){
+//     maxLength = Object.keys(data).length;
+//   }
 
-  let totalCount = d3.sum(Object.values(data))
-  //console.log("totalCount", totalCount);
-  for (let i = 0; i < maxLength; i++){
-    let percent = Math.round(Object.values(data)[i]/totalCount * 100)
-    //console.log("divide = ", percent)
-    newData.push({'category': `${Object.keys(data)[i]}`, "value": `${percent}`});
-  }
+//   let totalCount = d3.sum(Object.values(data))
+//   //console.log("totalCount", totalCount);
+//   for (let i = 0; i < maxLength; i++){
+//     let percent = Math.round(Object.values(data)[i]/totalCount * 100)
+//     //console.log("divide = ", percent)
+//     newData.push({'category': `${Object.keys(data)[i]}`, "value": `${percent}`});
+//   }
 
-  //console.log("newData = ", newData);
+//   //console.log("newData = ", newData);
 
-  var vis = d3.select(`#vis${index}`)
-                .append("svg:svg")
-                  .attr('id', `svgChart${index}`)
-                  .attr('class', 'graph')
-                  .data([newData])
-                  .attr("width", w)
-                  .attr("height", h)
-                  .append("svg:g")
-                    .attr("transform", "translate(" + r * 1.62 + "," + r * 1.62 + ")");
+//   var vis = d3.select(`#vis${index}`)
+//                 .append("svg:svg")
+//                   .attr('id', `svgChart${index}`)
+//                   .attr('class', 'graph')
+//                   .data([newData])
+//                   .attr("width", w)
+//                   .attr("height", h)
+//                   .append("svg:g")
+//                     .attr("transform", "translate(" + r * 1.62 + "," + r * 1.62 + ")");
 
-  var pie = d3.layout.pie().value(function(d){return d.value;});
+//   var pie = d3.layout.pie().value(function(d){return d.value;});
 
- // chart title
-  vis.append('text')
-        .attr('x', 0)
-        .attr('y', -240)
-        .attr('text-anchor', 'middle')
-        .text(`${xLabel} Distribution in ${countryClicked}`)
-        .attr('font-size', 22)
-        .attr('font-weight', 'bold')
-        .style("text-decoration", "underline");
+//  // chart title
+//   vis.append('text')
+//         .attr('x', 0)
+//         .attr('y', -240)
+//         .attr('text-anchor', 'middle')
+//         .text(`${xLabel} Distribution in ${countryClicked}`)
+//         .attr('font-size', 22)
+//         .attr('font-weight', 'bold')
+//         .style("text-decoration", "underline");
 
-  // Declare an arc generator function
-  var arc = d3.svg.arc().outerRadius(r);
+//   // Declare an arc generator function
+//   var arc = d3.svg.arc().outerRadius(r);
 
-  // Select paths, use arc generator to draw
-  var arcs = vis.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice");
-  arcs.append("svg:path")
-      .attr("fill", function(d, i){return color(i);})
-      .attr("d", function (d) {return arc(d);})
-  ;
+//   // Select paths, use arc generator to draw
+//   var arcs = vis.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice");
+//   arcs.append("svg:path")
+//       .attr("fill", function(d, i){return color(i);})
+//       .attr("d", function (d) {return arc(d);})
+//   ;
 
-  // Add the text
-  arcs.append("svg:text")
-      .attr("transform", function(d){
-          d.innerRadius = 100; /* Distance of label to the center*/
-          d.outerRadius = r;
-          return "translate(" + arc.centroid(d) + ")";}
-      )
-      .attr("text-anchor", "middle")
-      .text( function(d, i) {return newData[i].value + '%';})
-      .attr('font-size', 12);
+//   // Add the text
+//   arcs.append("svg:text")
+//       .attr("transform", function(d){
+//           d.innerRadius = 100; /* Distance of label to the center*/
+//           d.outerRadius = r;
+//           return "translate(" + arc.centroid(d) + ")";}
+//       )
+//       .attr("text-anchor", "middle")
+//       .text( function(d, i) {return newData[i].value + '%';})
+//       .attr('font-size', 12);
 
-  //remove this later
-  arcs.append("svg:text")
-      .attr("transform", function(d){
-          d.innerRadius = 200; /* Distance of label to the center*/
-          d.outerRadius = r;
-          return "translate(" + arc.centroid(d) + ")";}
-      )
-      .attr("text-anchor", "middle")
-      .text( function(d, i) {return newData[i].category;})
+//   //remove this later
+//   arcs.append("svg:text")
+//       .attr("transform", function(d){
+//           d.innerRadius = 200; /* Distance of label to the center*/
+//           d.outerRadius = r;
+//           return "translate(" + arc.centroid(d) + ")";}
+//       )
+//       .attr("text-anchor", "middle")
+//       .text( function(d, i) {return newData[i].category;})
       
-      .attr('font-size', 12);
+//       .attr('font-size', 12);
+// }
+
+const rename = new Map([
+  ["China, Hong Kong SAR", "China"],
+])
+function renameKeysUsingMap(dictionary, renameMap) {
+  const renamedDictionary = {};
+
+  for (const key in dictionary) {
+    if (renameMap.has(key)) {
+      renamedDictionary[renameMap.get(key)] = dictionary[key];
+    } else {
+      renamedDictionary[key] = dictionary[key];
+    }
+  }
+
+  return renamedDictionary;
 }
