@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import json
 import re
 df = pd.read_csv('./master.csv')
+df = df.replace(0, np.nan).dropna()
 print(df.head())
 print(df.columns)
 print(df.describe())
