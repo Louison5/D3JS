@@ -48,6 +48,7 @@ var svg = d3.select("body").append("svg")
     mouseClicked = false;
   })
   .call(zoom);
+
 // Adapted from "d3 map with states and countries", http://bl.ocks.org/MaciejKus/61e9ff1591355b00c1c1caf31e76a668
 function rotateMap(endX) {
   projection.rotate([rotated + (endX - initX) * 360 / (s * width), 0, 0])
@@ -56,9 +57,9 @@ function rotateMap(endX) {
 }
 
 //for tooltip
-var offsetL = document.getElementById('map').offsetLeft + 200;
+var offsetL = document.getElementById('map').offsetLeft + 300;
 // + document.getElementsByClassName();
-var offsetT = document.getElementById('map').offsetTop + 10;
+var offsetT = document.getElementById('map').offsetTop + 20;
 
 var path = d3.geo.path()
   .projection(projection);
@@ -91,6 +92,7 @@ d3.json("suicide_data.json", function(error, data){
     if (data[country]["2019"] != undefined){
     suicideData[country] = data[country]["2019"]["num"];}
   }
+  updateMapColours("top languages");
 })
 d3.json("data.json", function(error, data){
   for(var country in data){
@@ -240,47 +242,47 @@ d3.json("data.json", function(error, data){
       .attr("stop-color", function(d) { return d; });
     
     // Display the gradient as a rect
-    legendHeight =20
-    svg.append("rect")
-      .attr("width", 200)
-      .attr("height", legendHeight)
-      .attr('x', width + 50)
-      .attr('y', function (d, i) { return 110 + i * 25 })
-      .style("fill", "url(#gradient)");
+    // legendHeight =20
+    // svg.append("rect")
+    //   .attr("width", 200)
+    //   .attr("height", legendHeight)
+    //   .attr('x', width + 50)
+    //   .attr('y', function (d, i) { return 110 + i * 25 })
+    //   .style("fill", "url(#gradient)");
     
-    // Position and style the legend
-    svg.attr("transform", "translate(10, 10)");
+    // // Position and style the legend
+    // svg.attr("transform", "translate(10, 10)");
     
-    // Add marks to the color bar legend
-    var markPercentages = [0, 25, 50, 75];
-    var markValues = markPercentages.map(function(percentage) {
-      return colorScale.invert(percentage / 100*colorScale.max); // Calculate the data value from the percentage
-      // return colorScale.invert(20); // Calculate the data value from the percentage
-    });
-    var markGroup = svg.append("g")
-    .attr("class", "color-bar-marks");
+    // // Add marks to the color bar legend
+    // var markPercentages = [0, 25, 50, 75];
+    // var markValues = markPercentages.map(function(percentage) {
+    //   return colorScale.invert(percentage / 100*colorScale.max); // Calculate the data value from the percentage
+    //   // return colorScale.invert(20); // Calculate the data value from the percentage
+    // });
+    // var markGroup = svg.append("g")
+    // .attr("class", "color-bar-marks");
 
-    console.log(markValues)
-    markGroup.selectAll("line")
-    .data(markValues)
-    .enter().append("line")
-    .attr("x1", function(d) { return colorScale(d); })
-    .attr("x2", function(d) { return colorScale(d); })
-    // .attr("x1", function(d) { return (d); })
-    // .attr("x2", function(d) { return (d); })
-    .attr("y1", 0)
-    .attr("y2", legendHeight)
-    .style("stroke", "black")
-    .style("stroke-width", 2);
+    // console.log(markValues)
+    // markGroup.selectAll("line")
+    // .data(markValues)
+    // .enter().append("line")
+    // .attr("x1", function(d) { return colorScale(d); })
+    // .attr("x2", function(d) { return colorScale(d); })
+    // // .attr("x1", function(d) { return (d); })
+    // // .attr("x2", function(d) { return (d); })
+    // .attr("y1", 0)
+    // .attr("y2", legendHeight)
+    // .style("stroke", "black")
+    // .style("stroke-width", 2);
 
-    // Add labels to the marks
-    markGroup.selectAll("text")
-    .data(markValues)
-    .enter().append("text")
-    .attr("x", function(d) { return colorScale(d)+ width+50; })
-    .attr("y", legendHeight + 14)
-    .attr("text-anchor", "middle")
-    .text(function(d) { return Math.round(d * 100) + "%"; });
+    // // Add labels to the marks
+    // markGroup.selectAll("text")
+    // .data(markValues)
+    // .enter().append("text")
+    // .attr("x", function(d) { return colorScale(d)+ width+50; })
+    // .attr("y", legendHeight + 14)
+    // .attr("text-anchor", "middle")
+    // .text(function(d) { return Math.round(d * 100) + "%"; });
 
     updateMapColours(selectedAttribute);
   };
@@ -330,11 +332,7 @@ function updateMapColours(attribute){
         // } else {
           // colour = d3.scale.category20().domain(countryTops[attribute])(value);
           // colour = d3.scale.category20().domain(suicideData)(value);
-        console.log(suicideData)
-        console.log("adas")
-        console.log(d.properties.name)
         value = suicideData[d.properties.name]
-        console.log(value)
         colour = colorScale(value)
         if (value == "NA")
           colour = "white"
@@ -368,29 +366,27 @@ d3.json("world-countries.json", function (error, world) {
     .attr("style", function (d) {
       var colour = "#f0f0f0";
       
-      if(countryData[d.properties.name] != undefined){
-        languages = Object.keys(countryData[d.properties.name].languages);
-        colour = languageColours[languages[0]];
+      if(suicideData[d.properties.name] != undefined){
+        value = suicideData[d.properties.name]
+        colour = colorScale(value)
+        if (value == "NA")
+          colour = "white"
 
         if(colour == undefined){
           //console.log('language issue: ' + languages[0] + ', country: ' + d.properties.name);
           colour = "#f0f0f0";
         } else{
 
-          if(topLanguages.indexOf(languages[0]) == -1){
-            topLanguages.push(languages[0]);
-           
-            topLanguagesColours.push(colour);
-          }
         }
       }else{
         //console.log("Country issue: " + d.properties.name);
       }
       return "fill:" + colour + ";";
     })
-    .on('click', selected)
-    .on("mousemove", showTooltip)
+    // .on('click', selected)
+    .on("mousemove", selected)
     .on("mouseout", function (d, i) {
+      unselected()
       tooltip.classed("hidden", true);
     })
     .attr("d", path);
@@ -414,8 +410,13 @@ d3.selection.prototype.moveToFront = function () {
   });
 };
 
+//This functon will unhighlight the country and grab the country name 
+function unselected() {
+  d3.select('.selected').classed('selected', false);
+}
 //This functon will highlight the country pressed and grab the country name 
 function selected(d) {
+  showTooltip(d)
  
   if (countryClicked != ''){ //clears the countryClicked variable when user presses new country 
       countryClicked = '';
@@ -426,19 +427,19 @@ function selected(d) {
   console.log(countryClicked); 
 
   //Aabids function for his graphs can go here and he can pass it country name
-  let attribute = "languages";
-  displayBarCharts(countryClicked, attribute, "Languages", true, 1);
-  attribute = "platforms";
-  displayBarCharts(countryClicked, attribute, "Platforms", true, 2);
-  attribute = "yearsCoding";
-  displayBarCharts(countryClicked, attribute, "Coding Experience", false, 3);
-  attribute = "developerTypes";
-  displayBarCharts(countryClicked, attribute, "Developer Types", true, 4);
+  // let attribute = "languages";
+  // displayBarCharts(countryClicked, attribute, "Languages", true, 1);
+  // attribute = "platforms";
+  // displayBarCharts(countryClicked, attribute, "Platforms", true, 2);
+  // attribute = "yearsCoding";
+  // displayBarCharts(countryClicked, attribute, "Coding Experience", false, 3);
+  // attribute = "developerTypes";
+  // displayBarCharts(countryClicked, attribute, "Developer Types", true, 4);
   
-  attribute = "student";
-  displayPieCharts(countryClicked, attribute, "Student", 5);
-  attribute = "genders";
-  displayPieCharts(countryClicked, attribute, "Gender", 6);
+  // attribute = "student";
+  // displayPieCharts(countryClicked, attribute, "Student", 5);
+  // attribute = "genders";
+  // displayPieCharts(countryClicked, attribute, "Gender", 6);
 
   d3.select('.selected').classed('selected', false);
   d3.select(this).classed('selected', true);
