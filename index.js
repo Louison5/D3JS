@@ -1,6 +1,6 @@
 var slider = document.getElementById("myRange");
 const computedStyle = getComputedStyle(slider);
-const width = parseInt(computedStyle.width, 10)*0.88;
+const width = parseInt(computedStyle.width, 10)*0.82;
 const enlarge_ratio = width/962
 // var width = 962,
 rotated = 0,
@@ -68,7 +68,8 @@ function rotateMap(endX) {
 //for tooltip
 var offsetL = document.getElementById('map').offsetLeft ;
 // + document.getElementsByClassName();
-var offsetT = document.getElementById('map').offsetTop +10;
+var offsetT = document.getElementById('map').offsetTop ;
+// var offsetT = document.getElementById('map').offsetTop +10;
 
 var path = d3.geo.path()
   .projection(projection);
@@ -98,12 +99,35 @@ var countryData = {};
 var suicideData = {};
 d3.json("suicide_data.json", function(error, data){
   for(var country in data){
-    if (data[country]["2019"] != undefined){
-    suicideData[country] = data[country]["2019"]["num"];}
+    if (data[country]["1985"] != undefined){
+    suicideData[country] = data[country]["1985"]["num"];}
   }
   suicideData = renameKeysUsingMap(suicideData, rename)
-  updateMapColours("top languages");
+  updateMapColours(suicideData);
+  data_cty_yr = data;
 })
+
+var output = document.getElementById("demo");
+output.innerHTML = slider.value; // Display the default slider value
+
+var data_cty_yr; 
+// Update the current slider value (each time you drag the slider handle)
+slider.oninput = function() {
+  output.innerHTML = this.value;
+  var year_str = String(this.value)
+  d3.json("suicide_data.json", function(error, data){
+    suicideData ={}
+    for(var country in data){
+      if (data[country][year_str] != undefined){
+      suicideData[country] = data[country][year_str]["num"];}
+    }
+    suicideData = renameKeysUsingMap(suicideData, rename)
+    updateMapColours(suicideData);
+    data_cty_yr = data;
+    
+  })
+}
+
 d3.json("data.json", function(error, data){
   for(var country in data){
     countryData[country] = data[country];
@@ -144,132 +168,17 @@ d3.json("data.json", function(error, data){
   // bardiv.insert("a").html("year");
   // var bar = bardiv.insert("div").attr("class", "bar").attr("id", "bar")
 
-  var output = document.getElementById("demo");
-  output.innerHTML = slider.value; // Display the default slider value
-
-  // Update the current slider value (each time you drag the slider handle)
-  slider.oninput = function() {
-    output.innerHTML = this.value;
-    var year_str = String(this.value)
-    d3.json("suicide_data.json", function(error, data){
-      for(var country in data){
-        if (data[country][year_str] != undefined){
-        suicideData[country] = data[country][year_str]["num"];}
-      }
-      suicideData = renameKeysUsingMap(suicideData, rename)
-      updateMapColours("top languages");
-    })
-  }
-  function dragstarted(event) {
-    d3.select(this).raise().attr("stroke", "black");
-  }
-
-  function dragged(event) {
-    const x = event.x;
-    const index = Math.round(xScale.invert(x));
-    if (index >= 0 && index < years.length) {
-      bar.style("left", x + "px");
-      updateSelectedYear(index);
-    }
-  }
-  function dragended(event) {
-    d3.select(this).attr("stroke", null);
-  }
-  bar.call(d3.drag()
-  .on("start", dragstarted)
-  .on("drag", dragged)
-  .on("end", dragended));
-
-  var dropdown = dropdowndiv.insert("select")
-    .attr("class", "select")
 
   // Page Title
-  d3.select("body").insert("a", ":first-child").attr("href", "https://github.com/jeremydavidfriesen/stackoverflow-2019-survey-world-map-d3").html("Source");
-  d3.select("body").insert("h2", ":first-child").html("Stack Overflow Developer Survey (2019): World Map ")
+  // d3.select("body").insert("a", ":first-child").attr("href", "https://github.com/jeremydavidfriesen/stackoverflow-2019-survey-world-map-d3").html("Source");
+  // d3.select("body").insert("h2", ":first-child").html("Stack Overflow Developer Survey (2019): World Map ")
 
-  dropdown.selectAll("option")
-    .data(Object.keys(countryTops))
-    .enter()
-    .append("option")
-    .attr("value", function (d) { return d; })
-    .text(function (d) {
-      return d;
-      //return d[0].toUpperCase() + d.slice(1, d.length); // capitalize 1st letter
-    });
     
   var legendRectSize = 18;
   var legendSpacing = 4;
   var legend = svg.append("g")
     .attr("class", "legend");
 
-  // Handler for dropdown value change
-  // var dropdownChange = function () {
-  //   var selectedAttribute = d3.select(this).property('value');
-  //   console.log(selectedAttribute);
-  //   console.log(countryTops[selectedAttribute]);
-  //   if (selectedAttribute == undefined)
-  //     selectedAttribute = "top languages";
-
-  //   var rects = legend
-  //     .selectAll('rect')
-  //     .data(countryTops[selectedAttribute], function(d){return d;})
-
-  //   rects.exit().remove();
-
-  //   rects.enter()
-  //     .append('rect')
-  //     .attr('width', legendRectSize)
-  //     .attr('height', legendRectSize)
-  //     .attr('x', width + 20)
-  //     .attr('y', function (d, i) { return 100 + i * 25 })
-  //     .attr('fill', function (d, i) {
-  //       var value = countryTops[selectedAttribute][i]
-  //       if (selectedAttribute == "top languages") {
-  //         var ret = topLanguagesColours[topLanguages.indexOf(value)];
-  //       } else {
-  //         var ret = d3.scale.category20().domain(countryTops[selectedAttribute])(value);
-  //         if(value == "NA")
-  //           return "white"
-  //       }
-  //       if (ret == undefined)
-  //         return "white";
-  //       return ret;
-  //     })
-  //     .attr('stroke', function () { return "black" });
-
-  //   rects.transition()
-  //     .attr('y', function (d, i) { return 100 + i * 25 })
-  //     .attr('fill', function (d, i) {
-  //       var value = countryTops[selectedAttribute][i]
-  //       if (selectedAttribute == "top languages") {
-  //         var ret = topLanguagesColours[topLanguages.indexOf(value)];
-  //       } else {
-  //         var ret = d3.scale.category20().domain(countryTops[selectedAttribute])(value);
-  //         if(value == "NA")
-  //           return "white"
-  //       }
-  //       if (ret == undefined)
-  //         return "white";
-  //       return ret;
-  //     })
-
-  //   var texts = legend.selectAll('text')
-  //     .data(countryTops[selectedAttribute], function (d) { return d; });
-
-  //   texts.exit().remove()
-
-  //   texts.enter()
-  //     .append('text')
-  //     .attr('x', width + 50)
-  //     .attr('y', function (d, i) { return 110 + i * 25 })
-  //     .text(function (d, i) { return countryTops[selectedAttribute][i]; });
-  
-  //   texts.transition()
-  //     .attr('y', function (d, i) { return 110 + i * 25 })
-
-  //   updateMapColours(selectedAttribute);
-  // };
-  
   var dropdownChange = function(){
     
     var selectedAttribute = d3.select(this).property('value');
@@ -336,7 +245,7 @@ d3.json("data.json", function(error, data){
 
     updateMapColours(selectedAttribute);
   };
-  dropdown.on("change", dropdownChange);
+  // dropdown.on("change", dropdownChange);
   dropdownChange();
 });
 
@@ -354,46 +263,31 @@ var colorScale = d3.scale.linear()
   // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
 // update the colour of each country, by attribute parameter
-function updateMapColours(attribute){
+function updateMapColours(country_color){
   if(countries != undefined){
     console.log(countries);
-    console.log(countryData);
-
-    var altName = attribute;
-    if(attribute == 'top languages'){
-      altName = 'languages';
-    } else if(attribute == 'top platforms'){
-      altName = 'platforms';
-    } else if(attribute == 'top developer types'){
-      altName = 'developerTypes';
-    }
+    console.log("LOU");
+    console.log("LOU");
+    // console.log(countryData);
 
     countries.attr("style", function (d) {
-      // var colour = "white";
-      var colour = "f0f0f0";
-      if (d.properties.name != undefined && countryData[d.properties.name] != undefined){
+      var colour = "black";
+      // var colour = "f0f0f0";
+      if (d.properties.name != undefined && country_color[d.properties.name] != undefined){
         //countryData[d.properties.name][altName][0]
-        var value = Object.keys(countryData[d.properties.name][altName])[0];
-        if(value == "NA" && Object.keys(countryData[d.properties.name][altName])[1] != undefined)
-          value = Object.keys(countryData[d.properties.name][altName])[1];
+        // var value = Object.keys(countryData[d.properties.name][altName])[0];
+        // if(value == "NA" && Object.keys(countryData[d.properties.name][altName])[1] != undefined)
+        //   value = Object.keys(countryData[d.properties.name][altName])[1];
 
         var colour = "white"
-        // if (altName == "languages") {
-          // colour = topLanguagesColours[topLanguages.indexOf(value)];
-        // } else {
-          // colour = d3.scale.category20().domain(countryTops[attribute])(value);
-          // colour = d3.scale.category20().domain(suicideData)(value);
-        value = suicideData[d.properties.name]
+        value = country_color[d.properties.name]
         colour = colorScale(value)
         if (value == "NA")
           colour = "white"
-        // }
       }
-      console.log(colour);
       return "fill:" + colour + ";";
     })
     console.log(countryData);
-    console.log(countryTops);
     // console.log(parsedData);
   }
 }
@@ -435,9 +329,10 @@ d3.json("world-countries.json", function (error, world) {
       return "fill:" + colour + ";";
     })
     // .on('click', selected)
-    .on("mousemove", selected)
-    .on("mouseout", function (d, i) {
-      unselected()
+    .on("mouseenter", selected)
+    // .on("mousemove", selected)
+    .on("mouseleave", function (d, i) {
+      unselected(d)
       tooltip.classed("hidden", true);
     })
     .attr("d", path);
@@ -446,12 +341,34 @@ d3.json("world-countries.json", function (error, world) {
 // tooltip
 function showTooltip(d) {
   label = d.properties.name;
+  data_yr = {};
+  for(var key in data_cty_yr[label]){
+    (data_yr[key] = data_cty_yr[label][key]["num"]);
+  }
+  console.log(data_yr)
+  // var data_yr = data_cty_yr[label];
+  console.log(suicideData[label]);
+  // const line_container = document.getElementById(""); // Replace with your actual container element
+  // Create an SVG element using D3.js
+
+
   
   var mouse = d3.mouse(svg.node())
     .map(function (d) { return parseInt(d); });
   tooltip.classed("hidden", false)
-    .attr("style", "left:" + (mouse[0] + offsetL) + "px;top:" + (mouse[1] + offsetT) + "px")
+    .attr("style", "left:" + (mouse[0] + width*0.1) + "px;top:" + (mouse[1] ) + "px")
+    // .attr("style", "left:" + (mouse[0] + offsetL) + "px;top:" + (mouse[1] + offsetT) + "px")
     .html(label);
+  var line_svg = tooltip.append("svg")
+    .attr("width", 500)
+    .attr("height", 300);
+  displaylinechart(line_svg, data_yr)
+  // line_svg.append("circle")
+  //   .attr("cx", 50)
+  //   .attr("cy", 50)
+  //   .attr("r", 40)
+  //   .attr("fill", "green");
+
 }
 
 // selection
@@ -462,18 +379,24 @@ d3.selection.prototype.moveToFront = function () {
 };
 
 //This functon will unhighlight the country and grab the country name 
-function unselected() {
+function unselected(d) {
+  countryClicked = '';
   d3.select('.selected').classed('selected', false);
 }
+
 //This functon will highlight the country pressed and grab the country name 
 function selected(d) {
-  showTooltip(d)
- 
-  if (countryClicked != ''){ //clears the countryClicked variable when user presses new country 
-      countryClicked = '';
-      countryClicked += d.properties.name; //stores country name in variable 
-  }
 
+
+  // if (countryClicked != ''){ //clears the countryClicked variable when user presses new country 
+  //     countryClicked = '';
+  //     countryClicked += d.properties.name; //stores country name in variable 
+  // }
+
+  // if (countryClicked == d.properties.name){
+  //   return;
+  // }
+  showTooltip(d)
   countryClicked = d.properties.name;  //stores country name in variable
   console.log(countryClicked); 
 
@@ -532,6 +455,56 @@ function zoomed() {
 
 // Additional charts
 
+//Called when a country on the map is clicked
+function displaylinechart(target_svg, data_yr){
+  // from https://gist.github.com/mbostock/3883245
+  var line = d3.svg.line()
+    .x(function(d) { return x(d.year); })
+    .y(function(d) { return y(d.value); });
+  // Transform dictionary data into an array of objects
+  var data = [];
+  for (const year in data_yr) {
+    data.push({ year: year, value: data_yr[year] });
+  }
+
+  margin = {top: 20, right: 20, bottom: 30, left: 50},
+  line_plot_width = target_svg.attr("width") - margin.left - margin.right,
+  line_plot_height = target_svg.attr("height") - margin.top - margin.bottom;
+  var x = d3.scaleLinear()
+    .rangeRound([0, line_plot_width]);
+
+  var y = d3.scaleLinear()
+      .rangeRound([line_plot_height, 0]);
+  x.domain(d3.extent(data, function(d) { return d.year; }));
+  y.domain(d3.extent(data, function(d) { return d.value; }));
+
+  g = target_svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  g.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x))
+  .select(".domain")
+    .remove();
+
+  g.append("g")
+      .call(d3.axisLeft(y))
+    .append("text")
+      .attr("fill", "#000")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("suicide per 100k");
+
+  g.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+      .attr("stroke-width", 1.5)
+      .attr("d", line);
+
+}
 //Called when a country on the map is clicked
 // function displayBarCharts(countryClicked, attribute, xLabel, bool, index){
 //   //use the parsed data
