@@ -5,6 +5,8 @@ const enlarge_ratio = width/962
 // var width = 962,
 rotated = 0,
 height = 502*enlarge_ratio;
+var on_ratio = false
+var year_str = "1985"
 
 console.log("WIDTH")
 console.log(width)
@@ -15,6 +17,10 @@ var colourList = ['lightgreen', 'green', 'blue', 'palevioletred', 'red', 'yellow
 // d3.json("https://jeremydavidfriesen.github.io/stackoverflow-2019-survey-world-map-d3/data.json", function(data) {
 //   parsedData = data;
 // });
+const button1 = d3.select("#button1");
+const button2 = d3.select("#button2");
+button1.on("click", ()=>{on_ratio=false; parse_update_data(year_str);});
+button2.on("click", ()=>{on_ratio=true; parse_update_data(year_str); });
 
 //track where mouse was clicked
 var initX;
@@ -67,7 +73,6 @@ function rotateMap(endX) {
 
 //for tooltip
 var offsetL = document.getElementById('map').offsetLeft ;
-// + document.getElementsByClassName();
 var offsetT = document.getElementById('map').offsetTop ;
 // var offsetT = document.getElementById('map').offsetTop +10;
 
@@ -96,14 +101,9 @@ countryTops = {};
 
 // parse country data
 var countryData = {};
-var suicideData = {};
+// var suicideData = {};
+
 d3.json("suicide_data.json", function(error, data){
-  for(var country in data){
-    if (data[country]["1985"] != undefined){
-    suicideData[country] = data[country]["1985"]["num"];}
-  }
-  suicideData = renameKeysUsingMap(suicideData, rename)
-  updateMapColours(suicideData);
   data_cty_yr = data;
 })
 
@@ -112,20 +112,31 @@ output.innerHTML = slider.value; // Display the default slider value
 
 var data_cty_yr; 
 // Update the current slider value (each time you drag the slider handle)
-slider.oninput = function() {
-  output.innerHTML = this.value;
-  var year_str = String(this.value)
+
+function parse_update_data(year_str){
   d3.json("suicide_data.json", function(error, data){
-    suicideData ={}
+    var suicideData ={}
     for(var country in data){
       if (data[country][year_str] != undefined){
-      suicideData[country] = data[country][year_str]["num"];}
+        if (on_ratio == false){
+            suicideData[country] = data[country][year_str]["num"];
+        } else{
+            suicideData[country] = data[country][year_str]["sex"]["male"]/data[country][year_str]["sex"]["female"];
+        }
+      }
     }
     suicideData = renameKeysUsingMap(suicideData, rename)
     updateMapColours(suicideData);
     data_cty_yr = data;
-    
   })
+
+}
+parse_update_data(year_str);
+slider.oninput = function() {
+  output.innerHTML = this.value;
+  year_str = String(this.value)
+  parse_update_data(year_str)
+
 }
 
 d3.json("data.json", function(error, data){
@@ -193,12 +204,12 @@ d3.json("data.json", function(error, data){
       .attr("x1", "0%")
       .attr("x2", "100%");
     
-    // Add color stops to the gradient
-    gradient.selectAll("stop")
-      .data(colorScale.range())
-      .enter().append("stop")
-      .attr("offset", function(d, i) { return i / (colorScale.range().length - 1); })
-      .attr("stop-color", function(d) { return d; });
+    // // Add color stops to the gradient
+    // gradient.selectAll("stop")
+    //   .data(colorScale.range())
+    //   .enter().append("stop")
+    //   .attr("offset", function(d, i) { return i / (colorScale.range().length - 1); })
+    //   .attr("stop-color", function(d) { return d; });
     
     // Display the gradient as a rect
     // legendHeight =20
@@ -257,10 +268,15 @@ console.log("topLanguagesColours: ");
 console.log(topLanguagesColours);
 
 
-var colorScale = d3.scale.linear()
+var colorScale1 = d3.scale.linear()
   .domain([0, 10000]) // Set the domain of your continuous data
-  .range(["blue", "red"]);
+  .range(["white", "orange"]);
   // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
+
+var colorScale2 = d3.scale.linear()
+.domain([0.1, 10]) // Set the domain of your continuous data
+.range(["blue", "red", ]);
+// .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
 // update the colour of each country, by attribute parameter
 function updateMapColours(country_color){
@@ -281,7 +297,13 @@ function updateMapColours(country_color){
 
         var colour = "white"
         value = country_color[d.properties.name]
-        colour = colorScale(value)
+        colour = colorScale1(value)
+        if (on_ratio) {
+          console.log(value)
+          colour = colorScale2(value)
+          console.log(colour)
+          console.log("LOUS")
+        }
         if (value == "NA")
           colour = "white"
       }
@@ -308,26 +330,26 @@ d3.json("world-countries.json", function (error, world) {
     .append("path")
     .attr("name", function (d) { return d.properties.name; })
     .attr("id", function (d) { return d.id; })
-    .attr("style", function (d) {
-      var colour = "#f0f0f0";
+    // .attr("style", function (d) {
+    //   var colour = "#f0f0f0";
       
-      if(suicideData[d.properties.name] != undefined){
-        value = suicideData[d.properties.name]
-        colour = colorScale(value)
-        if (value == "NA")
-          colour = "white"
+    //   if(suicideData[d.properties.name] != undefined){
+    //     value = suicideData[d.properties.name]
+    //     colour = colorScale1(value)
+    //     if (value == "NA")
+    //       colour = "white"
 
-        if(colour == undefined){
-          //console.log('language issue: ' + languages[0] + ', country: ' + d.properties.name);
-          colour = "#f0f0f0";
-        } else{
+    //     if(colour == undefined){
+    //       //console.log('language issue: ' + languages[0] + ', country: ' + d.properties.name);
+    //       colour = "#f0f0f0";
+    //     } else{
 
-        }
-      }else{
-        //console.log("Country issue: " + d.properties.name);
-      }
-      return "fill:" + colour + ";";
-    })
+    //     }
+    //   }else{
+    //     //console.log("Country issue: " + d.properties.name);
+    //   }
+    //   return "fill:" + colour + ";";
+    // })
     // .on('click', selected)
     .on("mouseenter", selected)
     // .on("mousemove", selected)
@@ -347,7 +369,7 @@ function showTooltip(d) {
   }
   console.log(data_yr)
   // var data_yr = data_cty_yr[label];
-  console.log(suicideData[label]);
+  // console.log(suicideData[label]);
   // const line_container = document.getElementById(""); // Replace with your actual container element
   // Create an SVG element using D3.js
 
@@ -356,7 +378,8 @@ function showTooltip(d) {
   var mouse = d3.mouse(svg.node())
     .map(function (d) { return parseInt(d); });
   tooltip.classed("hidden", false)
-    .attr("style", "left:" + (mouse[0] + width*0.1) + "px;top:" + (mouse[1] ) + "px")
+    // .attr("style", "left:" + (mouse[0] + width*0.1) + "px;top:" + (mouse[1] ) + "px")
+    .attr("style", "left:" + (mouse[0]-offsetL) + "px;top:" + (mouse[1]-offsetT) + "px")
     // .attr("style", "left:" + (mouse[0] + offsetL) + "px;top:" + (mouse[1] + offsetT) + "px")
     .html(label);
   var line_svg = tooltip.append("svg")
