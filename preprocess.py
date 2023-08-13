@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import json
 import re
 df = pd.read_csv('./master.csv')
-df = df.replace(0, np.nan).dropna()
+# df = df.replace(0, np.nan).dropna()
 print(df.head())
 print(df.columns)
 print(df.describe())
@@ -33,10 +33,12 @@ for index, row in grouped_data.iterrows():
         nested_dict[country][year] = {'sex': {}, 'age': {}, "num": 0}
     if sex not in nested_dict[country][year]['sex']:
         nested_dict[country][year]['sex'][sex] = 0
-    if age not in nested_dict[country][year]['age']:
-        nested_dict[country][year]['age'][age] = 0
+    if sex not in nested_dict[country][year]['age']:
+        nested_dict[country][year]['age'][sex] = {}
+    if age not in nested_dict[country][year]['age'][sex]:
+        nested_dict[country][year]['age'][sex][age] = 0
     nested_dict[country][year]['sex'][sex] += population
-    nested_dict[country][year]['age'][age] += population
+    nested_dict[country][year]['age'][sex][age] += population
     nested_dict[country][year]['num'] += population
     nested_dict[country][year]["ppp"] = ppp
     # nested_dict[country][year]["hdi"] = hdi

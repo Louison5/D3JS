@@ -92,13 +92,6 @@ a img:hover {
   filter: brightness(3);
 }
 
-#bar {
-  width: 20px;
-  height: 100px;
-  background-color: #3498db;
-  cursor: pointer;
-}
-
 .slidecontainer {
   width: 100%; /* Width of the outside container */
 }
