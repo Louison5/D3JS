@@ -308,7 +308,6 @@ function displaylinechart(target_svg, data_yr){
   for (const year in data_yr) {
     data.push({ year: year, value: data_yr[year] });
   }
-
   margin = {top: 20, right: 20, bottom: 30, left: 50},
   line_plot_width = target_svg.attr("width") - margin.left - margin.right,
   line_plot_height = target_svg.attr("height") - margin.top - margin.bottom;
@@ -319,28 +318,32 @@ function displaylinechart(target_svg, data_yr){
       .rangeRound([line_plot_height, 0]);
   x.domain(d3.extent(data, function(d) { return d.year; }));
   y.domain(d3.extent(data, function(d) { return d.value; }));
-
   g = target_svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   g.append("g")
+    .attr("class", "axis")
     .attr("transform", "translate(0," + line_plot_height + ")")
-    .call(d3.axisBottom(x))
-  .select(".domain")
-    .remove();
+    .call(d3.axisBottom(x)
+            .tickFormat(d3.format(".0f")))
+    .append("text")
+      .attr("x", (line_plot_width / 2))
+      .attr("y", 25)
+      .attr("text-anchor", "middle")
+      .text("Year");
 
   g.append("g")
+      .attr("class", "axis")
       .call(d3.axisLeft(y))
     .append("text")
-      .attr("fill", "#000")
-      .attr("transform", "rotate(-90)")
+      .attr("x", 10)
       .attr("y", 6)
       .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
-      .text("suicide per 100k");
+      .attr("text-anchor", "start")
+      .text("Suicide per 100k");
 
   g.append("path")
       .datum(data)
       .attr("fill", "none")
-      .attr("stroke", "steelblue")
+      .attr("stroke", "#FFFF33")
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
       .attr("stroke-width", 1.5)
@@ -353,67 +356,102 @@ function displaybarchart(target_svg, input_data){
   // from https://gist.github.com/d3noob/8952219
 
   const orderedKeys = [
-                      "5-14 years",
-                      "15-24 years",
-                      "25-34 years",
-                      "35-54 years",
-                      "55-74 years",
-                      "75+ years"]
+                      "5-14",
+                      "15-24",
+                      "25-34",
+                      "35-54",
+                      "55-74",
+                      "75+"]
 
   var sorteddata = orderedKeys.map(key => {
     return {
     year: key,
-    value1: input_data["female"][key],
-    value2: input_data["male"][key]
+    value1: input_data["female"][key + ' years'],
+    value2: input_data["male"][key + ' years']
     };
   });
 
-  margin = {top: 20, right: 20, bottom: 30, left: 50},
+  margin = {top: 20, right: 50, bottom: 30, left: 45},
   bar_plot_width = target_svg.attr("width") - margin.left - margin.right,
   bar_plot_height = target_svg.attr("height") - margin.top - margin.bottom;
 
-  var x = d3.scale.ordinal().rangeRoundBands([0, bar_plot_width], .05);
+  var x = d3.scaleBand().range([0, target_svg.attr("width") - margin.right]).padding(0.1);
 
   var y = d3.scaleLinear().rangeRound([bar_plot_height, 0]);
 
   x.domain(sorteddata.map(function(d) { return d.year; }));
-  y.domain([-d3.max(sorteddata, function(d) { return d3.max([d.value1, d.value2]); }), d3.max(sorteddata, function(d) { return d3.max([d.value1,d.value2]); })]);
+  y.domain([-d3.max(sorteddata, function(d) { return (d3.max([d.value1, d.value2]) * 1.15); }) , d3.max(sorteddata, function(d) { return d3.max([d.value1,d.value2]); })]);
   g = target_svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   g.append("g")
+    .attr("class", "axis")
     .attr("transform", "translate(0," + bar_plot_height + ")")
     .call(d3.axisBottom(x))
-  .select(".domain")
-    .remove();
+    .append("text")
+      .attr("x", (margin.left + bar_plot_width) / 2)
+      .attr("y", 25)
+      .attr("text-anchor", "middle")
+      .text("Age group");
 
   g.append("g")
+    .attr("class", "axis")
       .call(d3.axisLeft(y))
     .append("text")
-      .attr("fill", "#000")
-      .attr("transform", "rotate(-90)")
+      .attr("x",10)
       .attr("y", 6)
       .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
-      .text("suicide per 100k");
+      .attr("text-anchor", "start")
+      .text("Suicide per 100k");
 
   g.selectAll("bar")
       .data(sorteddata)
     .enter().append("rect")
-      .style("fill", "red")
+      .style("fill", "#FF0066")
       .attr("x", function(d) { return x(d.year); })
-      .attr("width", x.rangeBand())
+      .attr("width", x.bandwidth())
       .attr("y", function(d) { return y(d.value1); })
       .attr("height", function(d) { return bar_plot_height/2 - y(d.value1); });
 
   g.selectAll("bar")
       .data(sorteddata)
     .enter().append("rect")
-      .style("fill", "steelblue")
+      .style("fill", "#3366FF")
       .attr("x", function(d) { return x(d.year); })
-      .attr("width", x.rangeBand())
+      .attr("width", x.bandwidth())
       .attr("y", function(d) { return y(0); })
       .attr("height", function(d) { return bar_plot_height/2 - y(d.value2); });
- 
-
+  
+  // Add legend
+  // from https://blog.csdn.net/weixin_40444691/article/details/109469189
+  var data_legend = [
+    {
+      "name":"Female",
+      "color":"#FF0066"
+    },
+    {
+      "name":"Male",
+      "color":"#3366FF"
+    }];
+  var legend = target_svg.selectAll(".legend")
+                .data(data_legend)
+                .enter().append("g")
+                .attr("transform", function(d, i){
+                  return "translate(400," + (i * 15 + 30) + ")";
+                });
+  legend.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", 30)
+        .attr("height", 10)
+        .style("fill", function(d){
+          return d.color;
+        });
+  legend.append("text")
+        .attr("x", 40)
+        .attr("y", 8)
+        .style("text-anchor", "start")
+        .style("fill", "#fff")
+        .style("font-size", 10)
+        .text(function(d){return d.name;});
 
 }
 
