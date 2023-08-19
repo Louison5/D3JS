@@ -457,7 +457,31 @@ function displaybarchart(target_svg, input_data){
 
 
 const rename = new Map([
-  ["China, Hong Kong SAR", "China"],
+    ['Antigua and Barbuda', 'Antigua and Barbuda'],
+    ['Bahrain','Bahrain'],
+    ['Barbados','Barbados'],
+    ['Cabo Verde','Cabo Verde'],
+    ['Dominica','Dominica'],
+    ['Grenada','Grenada'],
+    ['Kiribati','Kiribati'],
+    ['Maldives','Maldives'],
+    ['Mauritius','Mauritius'],
+    ['Saint Kitts and Nevis','Saint Kitts and Nevis'],
+    ['Saint Lucia','Saint Lucia'],
+    ['Saint Vincent and Grenadines','Saint Vincent and Grenadines'],
+    ['San Marino','San Marino'],
+    ['Seychelles','Seychelles'],
+    ['Singapore','Singapore'],
+    ['Saint Vincent and the Grenadines','Saint Vincent and the Grenadines'],
+    //Above this line are countries that are too small to show on the map. Listed for further research.
+    //Below are countries that have different names in suicide_data.json and world-countries.json.
+    ["China, Hong Kong SAR", "China"],
+    ['Aruba','Netherland'],
+    ['Macau','China'],
+    ['North Macedonia','The former Yugoslav Republic of Macedonia'],
+    ['Republic of Korea','North Korea'],
+    ['Czechia','Czech Republic'],
+    ['United States of America','United States']
 ])
 function renameKeysUsingMap(dictionary, renameMap) {
   const renamedDictionary = {};
