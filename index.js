@@ -17,8 +17,8 @@ var colourList = ['lightgreen', 'green', 'blue', 'palevioletred', 'red', 'yellow
 // });
 const button1 = d3.select("#button1");
 const button2 = d3.select("#button2");
-button1.on("click", ()=>{on_ratio=false; parse_update_data(year_str);});
-button2.on("click", ()=>{on_ratio=true; parse_update_data(year_str); });
+button1.on("click", ()=>{on_ratio=false; parse_update_data(year_str); showLegend(g);});
+button2.on("click", ()=>{on_ratio=true; parse_update_data(year_str); showLegend(g);});
 
 //track where mouse was clicked
 var initX;
@@ -80,6 +80,10 @@ var path = d3.geo.path()
 var tooltip = d3.select("#map")
   .append("div")
   .attr("class", "tooltip hidden");
+var legendBlock = d3.select("#map")
+    .append("div")
+    .append('svg')
+    .attr("class", "legendblock")
 
 var g = svg.append("g");
 
@@ -113,8 +117,8 @@ function parse_update_data(year_str){
     var suicideData ={}
     data_cty_sex_age = {}
     for(var country in data){
-      if (data[country][year_str] != undefined){
-        if (on_ratio == false){
+      if (data[country][year_str] !== undefined){
+        if (on_ratio === false){
             suicideData[country] = data[country][year_str]["num"];
         } else{
             suicideData[country] = data[country][year_str]["sex"]["male"]/data[country][year_str]["sex"]["female"];
@@ -141,7 +145,7 @@ slider.oninput = function() {
 
 
 var colorScale1 = d3.scale.linear()
-  .domain([0, 10000]) // Set the domain of your continuous data
+  .domain([0, 30000]) // Set the domain of your continuous data
   .range(["white", "orange"]);
   // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
@@ -152,24 +156,24 @@ var colorScale2 = d3.scale.linear()
 
 // update the colour of each country, by attribute parameter
 function updateMapColours(country_color){
-  if(countries != undefined){
+  if(countries !== undefined){
 
     countries.attr("style", function (d) {
       var colour = "black";
       // var colour = "f0f0f0";
-      if (d.properties.name != undefined && country_color[d.properties.name] != undefined){
+      if (d.properties.name !== undefined && country_color[d.properties.name] !== undefined){
         //countryData[d.properties.name][altName][0]
         // var value = Object.keys(countryData[d.properties.name][altName])[0];
         // if(value == "NA" && Object.keys(countryData[d.properties.name][altName])[1] != undefined)
         //   value = Object.keys(countryData[d.properties.name][altName])[1];
 
-        var colour = "white"
+        colour = "white"
         value = country_color[d.properties.name]
         colour = colorScale1(value)
         if (on_ratio) {
           colour = colorScale2(value)
         }
-        if (value == "NA")
+        if (value === "NA")
           colour = "white"
       }
       return "fill:" + colour + ";";
@@ -177,7 +181,55 @@ function updateMapColours(country_color){
   }
 }
 
-
+function showLegend(svg){
+    var legend;
+    if(on_ratio){
+        legend = d3.legendColor()
+            .scale(colorScale2)
+            .cells(18)
+            .orient('horizontal')
+            .shapePadding(1)
+            .labels(function({
+                  i,
+                  genLength,
+                  generatedLabels,
+                  labelDelimiter
+                }) {
+                  if (i === 0) {
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `)
+                    return `${values[0]}`
+                  } else if (i === genLength - 1) {
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `)
+                    return `${values[0]}`
+                  }
+                  return ''
+                });
+    }
+    else{
+        legend = d3.legendColor()
+            .scale(colorScale1)
+            .cells(18)
+            .orient('horizontal')
+            .shapePadding(1)
+            .labels(function({
+                  i,
+                  genLength,
+                  generatedLabels,
+                  labelDelimiter
+                }) {
+                  if (i === 0) {
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `)
+                    return `${values[0]}`
+                  } else if (i === genLength - 1) {
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `)
+                    return `${values[0]}`
+                  }
+                  return ''
+                });
+    }
+    legendBlock.attr("transform", "translate(10,10)")
+        .call(legend);
+}
 
 // get json data and draw it
 d3.json("world-countries.json", function (error, world) {
@@ -200,6 +252,7 @@ d3.json("world-countries.json", function (error, world) {
       tooltip.classed("hidden", true);
     })
     .attr("d", path);
+  showLegend(g);
 });
 
 // tooltip
@@ -290,7 +343,6 @@ function zoomed() {
   d3.selectAll(".boundary")
     .style("stroke-width", 1 / s);
 }
-
 
 
 

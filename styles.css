@@ -56,6 +56,10 @@ div.tooltip {
   box-shadow: 2px 2px 1px #888;
 }
 
+.legendblock{
+  background-color: rgba(255,255,255,0.5);
+}
+
 .graphDiv{
   display: inline-block;
 }
