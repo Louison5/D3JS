@@ -80,10 +80,18 @@ var path = d3.geo.path()
 var tooltip = d3.select("#map")
   .append("div")
   .attr("class", "tooltip hidden");
-var legendBlock = d3.select("#map")
+var legendBlock = d3.select("#maplegend")
     .append("div")
+    .attr("class", "legendDiv")
     .append('svg')
-    .attr("class", "legendblock")
+    .attr("class", "legendblock");
+var legendCaption = d3.select(".legendblock")
+    .append("text")
+    .attr('y',70)
+    .attr("font-size", 16)
+    .attr("font-style", "italic")
+    .attr("font-family","sans-serif")
+    .attr("color","white");
 
 var g = svg.append("g");
 
@@ -144,8 +152,8 @@ slider.oninput = function() {
 
 
 
-var colorScale1 = d3.scale.linear()
-  .domain([0, 30000]) // Set the domain of your continuous data
+var colorScale1 = d3.scale.sqrt()
+  .domain([0, 60000]) // Set the domain of your continuous data
   .range(["white", "orange"]);
   // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
@@ -186,9 +194,10 @@ function showLegend(svg){
     if(on_ratio){
         legend = d3.legendColor()
             .scale(colorScale2)
-            .cells(18)
+            .cells(13)
             .orient('horizontal')
-            .shapePadding(1)
+            .shapeWidth(22)
+            .shapePadding(0)
             .labels(function({
                   i,
                   genLength,
@@ -196,11 +205,24 @@ function showLegend(svg){
                   labelDelimiter
                 }) {
                   if (i === 0) {
-                    const values = generatedLabels[i].split(` ${labelDelimiter} `)
-                    return `${values[0]}`
-                  } else if (i === genLength - 1) {
-                    const values = generatedLabels[i].split(` ${labelDelimiter} `)
-                    return `${values[0]}`
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `);
+                    return `${values[0]}`;
+                  }
+                  else if (i === Math.round(genLength/4)){
+                      const values = generatedLabels[i].split(` ${labelDelimiter} `);
+                    return `${values[0]}`;
+                  }
+                  else if (i === Math.round(genLength/2)-1){
+                      const values = generatedLabels[i].split(` ${labelDelimiter} `);
+                    return `${values[0]}`;
+                  }
+                  else if (i === Math.round(genLength*3/4)-1){
+                      const values = generatedLabels[i].split(` ${labelDelimiter} `);
+                    return `${values[0]}`;
+                  }
+                  else if (i === genLength - 1) {
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `);
+                    return `${values[0]}`;
                   }
                   return ''
                 });
@@ -208,9 +230,10 @@ function showLegend(svg){
     else{
         legend = d3.legendColor()
             .scale(colorScale1)
-            .cells(18)
+            .cells(13)
             .orient('horizontal')
-            .shapePadding(1)
+            .shapeWidth(22)
+            .shapePadding(0)
             .labels(function({
                   i,
                   genLength,
@@ -218,17 +241,37 @@ function showLegend(svg){
                   labelDelimiter
                 }) {
                   if (i === 0) {
-                    const values = generatedLabels[i].split(` ${labelDelimiter} `)
-                    return `${values[0]}`
-                  } else if (i === genLength - 1) {
-                    const values = generatedLabels[i].split(` ${labelDelimiter} `)
-                    return `${values[0]}`
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `);
+                    var str1 = `${values[0]}`;
+                    str1 = str1.slice(0,-2); // Slice '.0' off the string
+                    return str1;
+                  }
+                  else if (i === Math.round(genLength/4)) {
+                    return "3750";
+                  }
+                  else if (i === Math.round(genLength/2)-1) {
+                    return "12500";
+                  }
+                  else if (i === Math.round(genLength*3/4)-1) {
+                    return "33750";
+                  }
+                  else if (i === genLength - 1) {
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `);
+                    var str2 = `${values[0]}`;
+                    str2 = str2.slice(0,-2);
+                    return str2;
                   }
                   return ''
                 });
     }
-    legendBlock.attr("transform", "translate(10,10)")
+    legendBlock.attr("transform", "translate(150,550)")
+        .attr("fill", "white")
+        .attr("font-family", "sans-serif")
         .call(legend);
+    if(on_ratio)
+        legendCaption.text("Unit: No. of Male/No. of Female");
+    else
+        legendCaption.text("Unit: No. of Suicides");
 }
 
 // get json data and draw it

@@ -56,8 +56,18 @@ div.tooltip {
   box-shadow: 2px 2px 1px #888;
 }
 
+#maplegend{
+  position: relative;
+}
+
+.legendDiv{
+  position: absolute;
+}
+
 .legendblock{
-  background-color: rgba(255,255,255,0.5);
+  padding: 10px;
+  height: 80px;
+  width: 300px;
 }
 
 .graphDiv{
