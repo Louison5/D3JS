@@ -152,8 +152,9 @@ slider.oninput = function() {
 
 
 
-var colorScale1 = d3.scale.sqrt()
-  .domain([0, 60000]) // Set the domain of your continuous data
+var colorScale1 = d3.scale.pow()
+    .exponent(1/2)
+  .domain([0, 80]) // Set the domain of your continuous data
   .range(["white", "orange"]);
   // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
@@ -247,13 +248,13 @@ function showLegend(svg){
                     return str1;
                   }
                   else if (i === Math.round(genLength/4)) {
-                    return "3750";
+                    return "5";
                   }
                   else if (i === Math.round(genLength/2)-1) {
-                    return "12500";
+                    return "20";
                   }
                   else if (i === Math.round(genLength*3/4)-1) {
-                    return "33750";
+                    return "45";
                   }
                   else if (i === genLength - 1) {
                     const values = generatedLabels[i].split(` ${labelDelimiter} `);
@@ -271,7 +272,7 @@ function showLegend(svg){
     if(on_ratio)
         legendCaption.text("Unit: No. of Male/No. of Female");
     else
-        legendCaption.text("Unit: No. of Suicides");
+        legendCaption.text("Unit: Suicides per 100k people");
 }
 
 // get json data and draw it
@@ -301,6 +302,11 @@ d3.json("world-countries.json", function (error, world) {
 // tooltip
 function showTooltip(d) {
   label = d.properties.name;
+  console.log(label);
+  if (renameReverse.has(label)) {
+      label = renameReverse.get(label);
+  }
+  console.log(label)
   data_yr = {};
   data_sex_age = {};
   for(var key in data_cty_yr[label]){
@@ -575,8 +581,13 @@ const rename = new Map([
     ['Macau','China'],
     ['North Macedonia','The former Yugoslav Republic of Macedonia'],
     ['Republic of Korea','North Korea'],
-    ['Czechia','Czech Republic'],
-    ['United States of America','United States']
+    ['Czechia','Czech Republic']
+])
+const renameReverse = new Map([
+    ["China","China, Hong Kong SAR"],
+    ['Netherland','Aruba'],
+    ['The former Yugoslav Republic of Macedonia','North Macedonia'],
+    ['North Korea','Republic of Korea']
 ])
 function renameKeysUsingMap(dictionary, renameMap) {
   const renamedDictionary = {};
