@@ -152,9 +152,8 @@ slider.oninput = function() {
 
 
 
-var colorScale1 = d3.scale.pow()
-    .exponent(1/2)
-  .domain([0, 80]) // Set the domain of your continuous data
+var colorScale1 = d3.scale.linear()
+  .domain([0, 60]) // Set the domain of your continuous data
   .range(["white", "orange"]);
   // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
@@ -183,7 +182,7 @@ function updateMapColours(country_color){
           colour = colorScale2(value)
         }
         if (value === "NA")
-          colour = "black"
+          colour = "white"
       }
       return "fill:" + colour + ";";
     })
@@ -248,19 +247,28 @@ function showLegend(svg){
                     return str1;
                   }
                   else if (i === Math.round(genLength/4)) {
-                    return "5";
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `);
+                    var str2 = `${values[0]}`;
+                    str2 = str2.slice(0,-2); // Slice '.0' off the string
+                    return str2;
                   }
                   else if (i === Math.round(genLength/2)-1) {
-                    return "20";
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `);
+                    var str3 = `${values[0]}`;
+                    str3 = str3.slice(0,-2); // Slice '.0' off the string
+                    return str3;
                   }
                   else if (i === Math.round(genLength*3/4)-1) {
-                    return "45";
+                    const values = generatedLabels[i].split(` ${labelDelimiter} `);
+                    var str4 = `${values[0]}`;
+                    str4 = str4.slice(0,-2); // Slice '.0' off the string
+                    return str4;
                   }
                   else if (i === genLength - 1) {
                     const values = generatedLabels[i].split(` ${labelDelimiter} `);
-                    var str2 = `${values[0]}`;
-                    str2 = str2.slice(0,-2);
-                    return str2;
+                    var str5 = `${values[0]}`;
+                    str5 = str5.slice(0,-2);
+                    return str5;
                   }
                   return ''
                 });
@@ -419,6 +427,7 @@ function displaylinechart(target_svg, data_yr){
       .rangeRound([line_plot_height, 0]);
   x.domain(d3.extent(data, function(d) { return d.year; }));
   y.domain(d3.extent(data, function(d) { return d.value; }));
+  console.log(x);
   g = target_svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   g.append("g")
     .attr("class", "axis")
@@ -578,7 +587,7 @@ const rename = new Map([
     //Below are countries that have different names in suicide_data.json and world-countries.json.
     ["China, Hong Kong SAR", "China"],
     ['Aruba','Netherland'],
-    // ['Macau','China'],
+    ['Macau','China'],
     ['North Macedonia','The former Yugoslav Republic of Macedonia'],
     ['Republic of Korea','North Korea'],
     ['Czechia','Czech Republic']
