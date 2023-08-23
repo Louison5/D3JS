@@ -160,7 +160,7 @@ var colorScale1 = d3.scale.pow()
 
 var colorScale2 = d3.scale.linear()
 .domain([0.1, 10]) // Set the domain of your continuous data
-.range(["blue", "red", ]);
+.range(["red", "blue", ]);
 // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
 // update the colour of each country, by attribute parameter
@@ -176,14 +176,14 @@ function updateMapColours(country_color){
         // if(value == "NA" && Object.keys(countryData[d.properties.name][altName])[1] != undefined)
         //   value = Object.keys(countryData[d.properties.name][altName])[1];
 
-        colour = "white"
+        colour = "black"
         value = country_color[d.properties.name]
         colour = colorScale1(value)
         if (on_ratio) {
           colour = colorScale2(value)
         }
         if (value === "NA")
-          colour = "white"
+          colour = "black"
       }
       return "fill:" + colour + ";";
     })
@@ -578,7 +578,7 @@ const rename = new Map([
     //Below are countries that have different names in suicide_data.json and world-countries.json.
     ["China, Hong Kong SAR", "China"],
     ['Aruba','Netherland'],
-    ['Macau','China'],
+    // ['Macau','China'],
     ['North Macedonia','The former Yugoslav Republic of Macedonia'],
     ['Republic of Korea','North Korea'],
     ['Czechia','Czech Republic']
