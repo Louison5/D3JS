@@ -8,99 +8,32 @@
       type="text/javascript"
     ></script>
   </head>
-<body>
-  <style>
-      .button-container img {
-          position: relative;
-      }
 
-      .button-label {
-          position: absolute;
-          bottom: 10px;
-          left: 50%;
-          transform: translateX(-50%);
-          font-weight: bold;
-          color: rgb(152, 63, 63);
-          pointer-events: none; /* Ensure text doesn't interfere with button clicks */
-      }
-  </style>
-
-<div class="button-container">
-  <div style="background-color: #ccc; display: inline-block; padding: 10px; margin: 10px;">
-      <img id="button1" src="lily.png" alt="Button 1" width="30" />
-      <br>
-      折线图
-  </div>
-  <div style="background-color: #ccc; display: inline-block; padding: 10px; margin: 10px;">
-      <img id="button2" src="lily.png" alt="Button 2" width="30" />
-      <br>
-      条形图
-  </div>
-  <div style="background-color: #ccc; display: inline-block; padding: 10px; margin: 10px;">
-      <img id="button3" src="lily.png" alt="Button 3" width="30" />
-      <br>
-      其他图
-  </div>
-</div>
-
-
-  <div id="demo"></div>
-
-  <div class="slidecontainer">
-      <input
-          type="range"
-          min="1985"
-          max="2020"
-          value="1985"
-          class="slider"
-          id="myRange"
-      />
-  </div>
-  <div class="button-container">
-    <!-- ... other buttons ... -->
-    <div style="background-color: #ed7f7f; display: inline-block; padding: 10px; margin: 10px;">
-      <button id="autoSlide">自动滑动</button>
+  <body>
+    <div class="button-container">
+      <img id="button1" src="lily.png" alt="Button 1" />
+      <img id="button2" src="lily.png" alt="Button 2" />
+      <img id="button3" src="lily.png" alt="Button 3" />
     </div>
-  </div>
-  
-  <div id="map"></div>
-</body>
-
+    <div id="demo"></div>
+    <div class="slidecontainer">
+      <input
+        type="range"
+        min="1985"
+        max="2015"
+        value="1985"
+        class="slider"
+        id="myRange"
+      />
+    </div>
+    <div id="maplegend"></div>
+    <div id="map"></div>
     <script src="https://d3js.org/d3.v3.min.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.0/d3.min.js"></script> -->
     <script src="https://d3js.org/topojson.v1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
     <script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
-    <script src="index.js"></script>
-    <script>
-      var slider = document.getElementById("myRange");
-      var isSliding = false;  // 用来追踪是否正在滑动
-      var interval;
-  
-      document.getElementById("autoSlide").addEventListener("click", function() {
-        if (!isSliding) {
-          // 开始滑动
-          var currentValue = parseInt(slider.value); // 获取当前滑动条的值
-  
-          if (currentValue < 2020) {
-            interval = setInterval(function() {
-              currentValue++;
-              slider.value = currentValue;
-  
-              if (currentValue >= 2020) {
-                clearInterval(interval);  // 当滑动条的值达到2020时，停止定时器
-                isSliding = false;        // 更新滑动状态
-              }
-            }, 1000);  // 每1000毫秒（1秒）执行一次
-          }
-          isSliding = true;  // 更新滑动状态
-        } else {
-          // 暂停滑动
-          clearInterval(interval);
-          isSliding = false;  // 更新滑动状态
-        }
-      });
-    </script>
     <script src="index.js"></script>
 
     <!-- <div class="button-container">
