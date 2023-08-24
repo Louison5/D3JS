@@ -611,3 +611,38 @@ function renameKeysUsingMap(dictionary, renameMap) {
 
   return renamedDictionary;
 }
+
+
+// slider related
+var slider = document.getElementById("myRange");
+var isSliding = false;  // 用来追踪是否正在滑动
+var interval;
+
+document.getElementById("autoSlide").addEventListener("click", function() {
+  if (!isSliding) {
+    // 开始滑动
+    var currentValue = parseInt(slider.value); // 获取当前滑动条的值
+
+    if (currentValue < 2015) {
+      interval = setInterval(function() {
+        currentValue++;
+        slider.value = currentValue;
+
+        output.innerHTML = slider.value;
+        year_str = String(slider.value)
+        parse_update_data(year_str)
+
+
+        if (currentValue >= 2015) {
+          clearInterval(interval);  // 当滑动条的值达到2020时，停止定时器
+          isSliding = false;        // 更新滑动状态
+        }
+      }, 1000);  // 每1000毫秒（1秒）执行一次
+    }
+    isSliding = true;  // 更新滑动状态
+  } else {
+    // 暂停滑动
+    clearInterval(interval);
+    isSliding = false;  // 更新滑动状态
+  }
+});

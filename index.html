@@ -8,26 +8,65 @@
       type="text/javascript"
     ></script>
   </head>
+<body>
+  <style>
+      .button-container img {
+          position: relative;
+      }
 
-  <body>
-    <div class="button-container">
-      <img id="button1" src="lily.png" alt="Button 1" />
-      <img id="button2" src="lily.png" alt="Button 2" />
-      <img id="button3" src="lily.png" alt="Button 3" />
-    </div>
-    <div id="demo"></div>
-    <div class="slidecontainer">
+      .button-label {
+          position: absolute;
+          bottom: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-weight: bold;
+          color: rgb(152, 63, 63);
+          pointer-events: none; /* Ensure text doesn't interfere with button clicks */
+      }
+  </style>
+
+<div class="button-container">
+  <div style="background-color: #ccc; display: inline-block; padding: 10px; margin: 10px;">
+      <img id="button1" src="lily.png" alt="Button 1" width="30" />
+      <br>
+      折线图
+  </div>
+  <div style="background-color: #ccc; display: inline-block; padding: 10px; margin: 10px;">
+      <img id="button2" src="lily.png" alt="Button 2" width="30" />
+      <br>
+      条形图
+  </div>
+  <div style="background-color: #ccc; display: inline-block; padding: 10px; margin: 10px;">
+      <img id="button3" src="lily.png" alt="Button 3" width="30" />
+      <br>
+      其他图
+  </div>
+</div>
+
+
+  <div id="demo"></div>
+
+  <div class="slidecontainer">
       <input
-        type="range"
-        min="1985"
-        max="2015"
-        value="1985"
-        class="slider"
-        id="myRange"
+          type="range"
+          min="1985"
+          max="2015"
+          value="1985"
+          class="slider"
+          id="myRange"
       />
-    </div>
+  </div>
     <div id="maplegend"></div>
-    <div id="map"></div>
+  <div class="button-container">
+    <!-- ... other buttons ... -->
+    <div style="background-color: #ed7f7f; display: inline-block; padding: 10px; margin: 10px;">
+      <button id="autoSlide">自动滑动</button>
+    </div>
+  </div>
+  
+  <div id="map"></div>
+</body>
+
     <script src="https://d3js.org/d3.v3.min.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.0/d3.min.js"></script> -->
