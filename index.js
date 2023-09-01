@@ -92,6 +92,14 @@ var legendCaption = d3.select(".legendblock")
     .attr("font-style", "italic")
     .attr("font-family","sans-serif")
     .attr("color","white");
+var legendOneLabel = d3.select(".legendblock")
+    .append("text")
+    .attr('y',38)
+    .attr('x',35)
+    .attr("font-size", 25)
+    .attr("font-style", "italic")
+    .attr("font-family","sans-serif")
+    .attr("color","white");
 
 var g = svg.append("g");
 
@@ -158,8 +166,8 @@ var colorScale1 = d3.scale.linear()
   // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
 var colorScale2 = d3.scale.linear()
-.domain([0.1, 10]) // Set the domain of your continuous data
-.range(["red", "blue", ]);
+.domain([0, 1, 10]) // Set the domain of your continuous data
+.range(["red", "white", "blue", ]);
 // .interpolator(d3.interpolateViridis); // Choose an interpolator for color mapping (e.g., interpolateViridis)
 
 // update the colour of each country, by attribute parameter
@@ -279,6 +287,7 @@ function showLegend(svg){
         .call(legend);
     if(on_ratio)
         legendCaption.text("Unit: No. of Male/No. of Female");
+        legendOneLabel.text("1");
     else
         legendCaption.text("Unit: Suicides per 100k people");
 }
